@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         AuraBox
 // @namespace    http://tampermonkey.net/
-// @version      vAlpha.2.7
-// @description  Theming Agent for a website (Image Background + Transparent TabBar + Settings UI + Dynamic Palettes)
+// @version      vAlpha.2.8
+// @description  Theming Agent for SchoolBox
 // @author       Cyclate
 // @match        https://link.stleonards.vic.edu.au/*
 // @run-at       document-start
@@ -14,29 +14,35 @@
 (function () {
     "use strict";
 
-    const VERSION = "vAlpha.2.7";
+    const VERSION = "vAlpha.2.8";
 
     // --- CONFIGURATION & STATE ---
 
-    // Default colors - will be overridden by saved theme
-    let colors = {
-        // Background Image URL
-        backgroundImage: "https://files.catbox.moe/6td7jm.jpg",
+    // Default theme - will be overridden by saved theme
+    let theme = {
+        transparency: "5f",
+    };
 
-        background: "#0b0f14",
-        background_light: "#1a2029",
-        background_lighter: "#2a313d",
-        surface: "#12161c",
+    theme = {
+        // Background Image URL$
+        transparency: theme.transparency,
+        blur_amount: 10,
+
+        backgroundImage: "https://i.postimg.cc/WzccJ6cR/new-4.png",
+        background: "#0b0f14" + theme.transparency,
+        background_light: "#1a2029" + theme.transparency,
+        background_lighter: "#2a313d" + theme.transparency,
+        surface: "#12161c" + theme.transparency,
         border: "#0b0f14",
         text: "#d0d6e0",
         secondaryText: "#a0a6b0",
         heading: "#f0f4f8",
         accent: "#82b3e8",
-        tableBg: "#12171d",
-        tableHeader: "#1a2029",
+        tableBg: "#12171d" + theme.transparency,
+        tableHeader: "#1a2029" + theme.transparency,
         inputBg: "#1c222b",
         inputDisabled: "#12171d",
-        selectionBg: "#3a7fc4",
+        selectionBg: "#3a7fc4" + theme.transparency,
         selectionText: "#e6ecf2",
         scroll_track: "#1f242c",
         scroll_thumb: "#3b404c",
@@ -45,32 +51,7 @@
         scroll_corner: "#181d24",
     };
 
-    let styledTimetableColors = [
-        "#181d24",
-        "#1b2028",
-        "#1d222a",
-        "#1f242c",
-        "#22272f",
-        "#242931",
-        "#262b34",
-        "#292e37",
-        "#2b3039",
-        "#2d323c",
-        "#30353f",
-        "#323741",
-        "#343944",
-        "#373c47",
-        "#393e49",
-        "#3b404c",
-        "#3e434f",
-        "#404551",
-        "#424754",
-        "#454a57",
-        "#474c59",
-        "#494e5c",
-    ];
-
-    let gradeColors = [
+    let gradeTheme = [
         "#82b3e8",
         "#5c91c0",
         "#3a6d99",
@@ -146,8 +127,8 @@
 
         const box = document.createElement("div");
         box.style.cssText = `
-            background: ${colors.surface};
-            border: 1px solid ${colors.accent};
+            background: ${theme.surface};
+            border: 1px solid ${theme.accent};
             padding: 25px;
             border-radius: 10px;
             width: 600px;
@@ -155,32 +136,27 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            color: ${colors.text};
+            color: ${theme.text};
             font-family: sans-serif;
         `;
 
         const formatArray = (arr) => arr.join(", ");
 
         box.innerHTML = `
-            <h2 style="margin-top:0; color:${colors.heading}; border-bottom: 1px solid ${colors.border}; padding-bottom: 10px;">AuraBox Settings</h2>
+            <h2 style="margin-top:0; color:${theme.heading}; border-bottom: 1px solid ${theme.border}; padding-bottom: 10px;">AuraBox Settings</h2>
             <div style="margin-bottom: 20px;">
-                <label style="display:block; font-weight:bold; margin-bottom: 5px; color:${colors.heading};">Background Image URL:</label>
-                <input type="text" id="aurabox-bg-input" value="${colors.backgroundImage}"
-                    style="width: 100%; padding: 10px; background: ${colors.inputBg}; color: ${colors.heading}; border: 1px solid ${colors.border}; border-radius: 4px;">
+                <label style="display:block; font-weight:bold; margin-bottom: 5px; color:${theme.heading};">Background Image URL:</label>
+                <input type="text" id="aurabox-bg-input" value="${theme.backgroundImage}"
+                    style="width: 100%; padding: 10px; background: ${theme.inputBg}; color: ${theme.heading}; border: 1px solid ${theme.border}; border-radius: 4px;">
             </div>
             <div style="margin-bottom: 20px;">
-                <label style="display:block; font-weight:bold; margin-bottom: 5px; color:${colors.heading};">Timetable Colors (Comma separated hex):</label>
-                <textarea id="aurabox-timetable-input" rows="3"
-                    style="width: 100%; padding: 10px; background: ${colors.inputBg}; color: ${colors.secondaryText}; border: 1px solid ${colors.border}; border-radius: 4px; font-family: monospace; font-size: 0.8em;">${formatArray(styledTimetableColors)}</textarea>
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display:block; font-weight:bold; margin-bottom: 5px; color:${colors.heading};">Grade Gradient Colors (Comma separated hex):</label>
+                <label style="display:block; font-weight:bold; margin-bottom: 5px; color:${theme.heading};">Grade Gradient Theme (Comma separated hex):</label>
                 <textarea id="aurabox-grades-input" rows="2"
-                    style="width: 100%; padding: 10px; background: ${colors.inputBg}; color: ${colors.secondaryText}; border: 1px solid ${colors.border}; border-radius: 4px; font-family: monospace; font-size: 0.8em;">${formatArray(gradeColors)}</textarea>
+                    style="width: 100%; padding: 10px; background: ${theme.inputBg}; color: ${theme.secondaryText}; border: 1px solid ${theme.border}; border-radius: 4px; font-family: monospace; font-size: 0.8em;">${formatArray(gradeTheme)}</textarea>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
-                <button id="aurabox-close-btn" style="padding: 8px 15px; background: transparent; border: 1px solid ${colors.secondaryText}; color: ${colors.secondaryText}; border-radius: 4px; cursor: pointer;">Cancel</button>
-                <button id="aurabox-save-btn" style="padding: 8px 20px; background: ${colors.accent}; border: none; color: ${colors.background}; font-weight: bold; border-radius: 4px; cursor: pointer;">Save & Reload</button>
+                <button id="aurabox-close-btn" style="padding: 8px 15px; background: transparent; border: 1px solid ${theme.secondaryText}; color: ${theme.secondaryText}; border-radius: 4px; cursor: pointer;">Cancel</button>
+                <button id="aurabox-save-btn" style="padding: 8px 20px; background: ${theme.accent}; border: none; color: ${theme.background}; font-weight: bold; border-radius: 4px; cursor: pointer;">Save & Reload</button>
             </div>
         `;
 
@@ -194,21 +170,14 @@
             const bgInput = document
                 .getElementById("aurabox-bg-input")
                 .value.trim();
-            const timetableInput = document
-                .getElementById("aurabox-timetable-input")
-                .value.trim();
             const gradesInput = document
                 .getElementById("aurabox-grades-input")
                 .value.trim();
 
             if (bgInput) {
-                colors.backgroundImage = bgInput;
+                theme.backgroundImage = bgInput;
                 try {
-                    styledTimetableColors = timetableInput
-                        .split(",")
-                        .map((c) => c.trim())
-                        .filter((c) => c.startsWith("#"));
-                    gradeColors = gradesInput
+                    gradeTheme = gradesInput
                         .split(",")
                         .map((c) => c.trim())
                         .filter((c) => c.startsWith("#"));
@@ -218,7 +187,7 @@
                     setTimeout(() => window.location.reload(), 500);
                 } catch (e) {
                     showNotification(
-                        "Error parsing colors. Check format.",
+                        "Error parsing theme. Check format.",
                         true,
                     );
                 }
@@ -239,7 +208,7 @@
 
         const img = new Image();
         img.crossOrigin = "Anonymous";
-        img.src = colors.backgroundImage;
+        img.src = theme.backgroundImage;
 
         img.onload = () => {
             try {
@@ -269,8 +238,9 @@
                     }
                 }
 
-                if (count === 0)
+                if (count === 0) {
                     throw new Error("Image appears empty or transparent");
+                }
 
                 r = Math.floor(r / count);
                 g = Math.floor(g / count);
@@ -280,8 +250,8 @@
                 const bgSat = Math.min(s * 100, 30);
                 const accSat = Math.max(s * 100, 60);
 
-                const newColors = {
-                    backgroundImage: colors.backgroundImage,
+                const newTheme = {
+                    backgroundImage: theme.backgroundImage,
                     background: hslToHex(h, bgSat * 0.6, 7),
                     background_light: hslToHex(h, bgSat * 0.6, 12),
                     background_lighter: hslToHex(h, bgSat * 0.5, 18),
@@ -304,30 +274,18 @@
                     scroll_corner: hslToHex(h, bgSat * 0.3, 10),
                 };
 
-                const newTimetableColors = [];
-                for (let i = 0; i < 22; i++) {
-                    newTimetableColors.push(
-                        hslToHex(
-                            h + (i % 3) * 5,
-                            bgSat * 0.5,
-                            10 + (i % 5) * 2,
-                        ),
-                    );
-                }
-
-                const newGradeColors = [];
+                const newGradeTheme = [];
                 for (let i = 0; i < 8; i++) {
                     const stepL = 60 - i * 5;
                     const stepS = accSat - i * 5;
-                    newGradeColors.push(
+                    newGradeTheme.push(
                         hslToHex(h, Math.max(stepS, 20), Math.max(stepL, 15)),
                     );
                 }
 
                 const themeExport = {
-                    colors: newColors,
-                    styledTimetableColors: newTimetableColors,
-                    gradeColors: newGradeColors,
+                    theme: newTheme,
+                    gradeTheme: newGradeTheme,
                     version: VERSION,
                     source: "Auto-generated from background",
                     exportDate: new Date().toISOString(),
@@ -365,18 +323,15 @@
     function loadSavedTheme() {
         const savedTheme = GM_getValue("AuraBoxTheme", null);
         if (savedTheme) {
-            colors = { ...colors, ...savedTheme.colors };
-            styledTimetableColors =
-                savedTheme.styledTimetableColors || styledTimetableColors;
-            gradeColors = savedTheme.gradeColors || gradeColors;
+            theme = { ...theme, ...savedTheme.theme };
+            gradeTheme = savedTheme.gradeTheme || gradeTheme;
         }
     }
 
     function saveTheme() {
         const theme = {
-            colors: colors,
-            styledTimetableColors: styledTimetableColors,
-            gradeColors: gradeColors,
+            theme: theme,
+            gradeTheme: gradeTheme,
             timestamp: new Date().toISOString(),
         };
         GM_setValue("AuraBoxTheme", theme);
@@ -384,9 +339,8 @@
 
     function exportTheme() {
         const theme = {
-            colors: colors,
-            styledTimetableColors: styledTimetableColors,
-            gradeColors: gradeColors,
+            theme: theme,
+            gradeTheme: gradeTheme,
             version: VERSION,
             exportDate: new Date().toISOString(),
         };
@@ -416,12 +370,9 @@
             reader.onload = function (e) {
                 try {
                     const theme = JSON.parse(e.target.result);
-                    if (theme.colors && typeof theme.colors === "object") {
-                        colors = { ...colors, ...theme.colors };
-                        styledTimetableColors =
-                            theme.styledTimetableColors ||
-                            styledTimetableColors;
-                        gradeColors = theme.gradeColors || gradeColors;
+                    if (theme.theme && typeof theme.theme === "object") {
+                        theme = { ...theme, ...theme.theme };
+                        gradeTheme = theme.gradeTheme || gradeTheme;
 
                         saveTheme();
                         applyTheme();
@@ -500,21 +451,17 @@
     function styleHomePage() {
         addCSS(`
             .component-action section {
-                background: ${colors.surface};
-            }
-            .island section {
-                background: ${colors.surface}3f;
-                backdrop-filter: blur(20px);
+                background: ${theme.surface};
             }
             .fc .fc-cell-shaded {
-                background: ${colors.surface}
+                background: ${theme.surface}
             }
         `);
 
         function changeSpanStylesToColorText() {
             const spans = document.querySelectorAll("span");
             spans.forEach((span) => {
-                span.style.color = colors.text;
+                span.style.color = theme.text;
             });
         }
 
@@ -531,25 +478,25 @@
     function styleNewsPage() {
         addCSS(`
             .tabs {
-                background: ${colors.surface};
+                background: ${theme.surface};
                 border: none;
                 outline: none;
             }
             .tabs dd>a, .tabs .tab-title>a {
-                color: ${colors.text}
+                color: ${theme.text}
             }
             .side-nav li.active>a:first-child:not(.button):not(.adtp-btn):not(button):not([type=submit]):not(a.submit):not(button.submit):not(.show-ckeditor-button) {
-                background-color: ${colors.surface};
-                color: ${colors.text};
+                background-color: ${theme.surface};
+                color: ${theme.text};
             }
             .side-nav li a:not(.button):not(.adtp-btn):not(button):not([type=submit]):not(a.submit):not(button.submit):not(.show-ckeditor-button) {
-                color: ${colors.text}
+                color: ${theme.text}
             }
             .side-nav li a:not(.button):not(.adtp-btn):not(button):not([type=submit]):not(a.submit):not(button.submit):not(.show-ckeditor-button):hover, .side-nav li a:not(.button):not(.adtp-btn):not(button):not([type=submit]):not(a.submit):not(button.submit):not(.show-ckeditor-button):focus {
-                color: ${colors.accent}
+                color: ${theme.accent}
             }
             .side-nav {
-                background-color: ${colors.surface}
+                background-color: ${theme.surface}
             }
             .fc-theme-standard th, .fc-theme-standard td, .fc-theme-standard thead, .fc-theme-standard tbody, .fc-theme-standard .fc-divider, .fc-theme-standard .fc-row, .fc-theme-standard .fc-content, .fc-theme-standard .fc-popover, .fc-theme-standard .fc-list-view, .fc-theme-standard .fc-list-heading td, .fc .fc-row .fc-content-skeleton td {
                 border: none;
@@ -599,56 +546,69 @@
     function styleDueWorkPage() {
         addCSS(`
             .fc-header-toolbar.fc-toolbar.fc-toolbar-ltr {
-                background-color: ${colors.surface};
+                background-color: ${theme.surface};
             }
             .fc-toolbar .fc-button:hover, .fc-toolbar .fc-button.fc-button-active {
-                color: ${colors.text} !important;
+                color: ${theme.text} !important;
             }
             .fc-toolbar {
                 border: none;
             }
             .filter-dropdown .filter-component {
                 border: none;
-                color: ${colors.text};
+                color: ${theme.text};
             }
             li sbx-pop-out {
-                background-color: ${colors.background_light} !important;
+                background-color: ${theme.background_light} !important;
             }
             .fc .fc-col-header-cell a {
-                color: ${colors.heading}
+                color: ${theme.heading}
             }
             a.fc-daygrid-day-number {
-                color: ${colors.text}
+                color: ${theme.text}
             }
             .button, .adtp-btn, .attachzone .dzone.adtp-btn, .dropzone-wrap .dzone.adtp-btn, .show-ckeditor-button, .attachzone .dzone.show-ckeditor-button, .dropzone-wrap .dzone.show-ckeditor-button, .flex-list.buttons a, .flex-list.buttons button, .attachzone .flex-list.buttons a.dzone, .flex-list.buttons .attachzone a.dzone, .attachzone .flex-list.buttons button.dzone, .flex-list.buttons .attachzone button.dzone, .dropzone-wrap .flex-list.buttons a.dzone, .flex-list.buttons .dropzone-wrap a.dzone, .dropzone-wrap .flex-list.buttons button.dzone, .flex-list.buttons .dropzone-wrap button.dzone, [type=submit], .flex-list.buttons a.submit, .flex-list.buttons button.submit, a.submit, button.submit, .attachzone .dzone[type=submit], .attachzone a.dzone.submit, .attachzone button.dzone.submit, .dropzone-wrap .dzone[type=submit], .dropzone-wrap a.dzone.submit, .dropzone-wrap button.dzone.submit, button, .attachzone button.dzone, .dropzone-wrap button.dzone, .attachzone .dropzone-wrap button.dzone, .dropzone-wrap .attachzone button.dzone, .context-switch nav a, .avatar-switch nav a, .attachzone .dzone.button, .attachzone button.dzone, .attachzone button.dzone, .attachzone .context-switch nav a.dzone, .attachzone .avatar-switch nav a.dzone, .context-switch nav .attachzone a.dzone, .avatar-switch nav .attachzone a.dzone, .dropzone-wrap .dzone.button, .dropzone-wrap button.dzone, .dropzone-wrap button.dzone, .dropzone-wrap .context-switch nav a.dzone, .dropzone-wrap .avatar-switch nav a.dzone, .context-switch nav .dropzone-wrap a.dzone, .avatar-switch nav .dropzone-wrap a.dzone {
-                color: ${colors.text}
+                color: ${theme.text}
             }
             .checklist.item.filter-component {
-                background-color: ${colors.surface}
+                background-color: ${theme.surface}
             }
             .small-12.column.no-pad {
-                background-color: ${colors.surface}
+                background-color: ${theme.surface}
             }
         `);
     }
 
     function styleClass() {
         addCSS(`
-            #component-layout .column-top .component-titlebar, #component-layout .column-top .island section {
-                background-color: ${colors.background};
+            #component-layout .column-top .component-titlebar {
+                background-color: ${theme.background};
             }
 
-            .VueTables__wrapper, .VueTables__table-footer, .filters[data-v-053bbdac], .VueTables__search, #component-layout .column-left .island section, .empty-state, .empty-state-flex-centered, #component-layout .column-right .component-titlebar, .editPanel.socialstream-new-post, #component-layout .column-left .component-titlebar, .calendar-list>li, .marking-input-list>li, .weather-list>li, .weather-forecast>li, .action-list>li, ul.az-list>li, ul.az-error-list>li, .resource-list>li, .permission-list>li, .news-list>li, .subject-list>li, .activity-list>li, .information-list>li {
+            .island section {
+                background: ${theme.surface};
+                backdrop-filter: blur(20px);
+            }
+
+            #component-layout .column-right .island section {
+                background: transparent;
+            }
+
+            .VueTables__wrapper, .VueTables__table-footer, .filters[data-v-053bbdac], .VueTables__search, #component-layout .column-left .island section, .empty-state, .empty-state-flex-centered, #component-layout .column-right .component-titlebar, .editPanel.socialstream-new-post, #component-layout .column-left .component-titlebar, .calendar-list>li, .marking-input-list>li, .weather-list>li, .weather-forecast>li, .action-list>li, ul.az-list>li, ul.az-error-list>li, .resource-list>li, .permission-list>li, .news-list>li, .subject-list>li, .activity-list>li, .information-list>li, .VueTables__wrapper, .VueTables__table-footer, .filters[data-v-053bbdac], .VueTables__search, #component-layout .column-left .island section, .empty-state, .empty-state-flex-centered, #component-layout .column-right .component-titlebar, .editPanel.socialstream-new-post, #component-layout .column-left .component-titlebar, .calendar-list>li, .marking-input-list>li, .weather-list>li, .weather-forecast>li, .action-list>li, ul.az-list>li, ul.az-error-list>li, .resource-list>li, .permission-list>li, .news-list>li, .subject-list>li, .activity-list>li, .information-list>li, .VueTables__wrapper, .VueTables__table-footer, .filters[data-v-053bbdac], .VueTables__search, #component-layout .column-left .island section, .empty-state, .empty-state-flex-centered, #component-layout .column-right .component-titlebar, .editPanel.socialstream-new-post, #component-layout .column-left .component-titlebar, .calendar-list>li, .marking-input-list>li, .weather-list>li, .weather-forecast>li, .action-list>li, ul.az-list>li, ul.az-error-list>li, .resource-list>li, .permission-list>li, .news-list>li, .subject-list>li, .activity-list>li, .information-list>li, .VueTables__wrapper, .VueTables__table-footer, .filters[data-v-053bbdac], .VueTables__search, #component-layout .column-left .island section, .empty-state, .empty-state-flex-centered, #component-layout .column-right .component-titlebar, .editPanel.socialstream-new-post, #component-layout .column-left .component-titlebar, .calendar-list>li, .marking-input-list>li, .weather-list>li, .weather-forecast>li, .action-list>li, ul.az-list>li, ul.az-error-list>li, .resource-list>li, .permission-list>li, .news-list>li, .subject-list>li, .activity-list>li, .information-list>li {
                 border: 0px;
-                background-color: ${colors.surface};
+                background-color: ${theme.background};
             }
 
+            ul.grid.small-block-grid-1.medium-block-grid-2 {
+
+                background-color: ${theme.background};
+            }
             .component-action section {
                 border: 0px;
             }
 
             .breadcrumb li.active span:not([href]), #component-layout .column-left .island section {
-                color: ${colors.text};
+                color: ${theme.text};
             }
 
             input:not([type]), input[type=text], input[type=password], input[type=date], input[type=datetime], input[type=datetime-local], input[type=month], input[type=week], input[type=email], input[type=number], input[type=search], input[type=tel], input[type=time], input[type=url], input[type=color], textarea, input:hover, textarea:hover, select:hover {
@@ -656,37 +616,37 @@
             }
 
             .breadcrumb li a[href], .breadcrumb li span[href] {
-                background-color: ${colors.background_light};
+                background-color: ${theme.background_light};
             }
 
             .breadcrumb li.active span, .breadcrumb li.active span:after{
-                background-color: ${colors.background_lighter};
+                background-color: ${theme.background_lighter};
                 border: 0px;
             }
 
             .breadcrumb li a[href]:after, .breadcrumb li span[href]:after {
-                border-left: .4rem solid ${colors.background_light};
+                border-left: .4rem solid ${theme.background_light};
             }
 
             .breadcrumb li a:before, .breadcrumb li span:before {
-                border-left: .4rem solid ${colors.background_lighter};
+                border-left: .4rem solid ${theme.background_lighter};
             }
 
             .breadcrumb li a[href]:hover, .breadcrumb li span[href]:hover {
-                background-color: ${colors.background_lighter};
+                background-color: ${theme.background_lighter};
             }
 
             .breadcrumb li a[href]:hover:after {
-                border-left-color: ${colors.background_lighter};
+                border-left-color: ${theme.background_lighter};
             }
 
             .sbx-button[data-v-4b5a0ce8] {
-                fill: ${colors.accent} !important;
+                fill: ${theme.accent} !important;
             }
 
             .sbx-button__icon[data-v-4b5a0ce8]:hover {
-                fill: ${colors.heading}
-                background-color: ${colors.background_light}
+                fill: ${theme.heading}
+                background-color: ${theme.background_light}
             }
 
             section div.small-12 div.actions-small-1 nav {
@@ -698,12 +658,8 @@
                 height: 44px;
             }
 
-            #component-layout .column-right .island section {
-                background: ${colors.surface};
-            }
-
             div.list-item a:hover {
-                background: ${colors.background_light}
+                background: ${theme.background_light}
             }
 
             .card.compact {
@@ -723,16 +679,12 @@
                 background-color: transparent;
             }
 
-            #content>.row>.small-12, .rubric-criterion-selector #content>.row>.criteria-group, #content>.row>.medium-12, #content>.row>.list-item>.small-12, .rubric-criterion-selector #content>.row>.list-item>.criteria-group, #content>.row>.list-item>.medium-12 {
-                padding-left: 0px;
-            }
-
             a[data-semester-switch], .context-switch nav a {
-                background-color: ${colors.surface};
+                background-color: ${theme.surface};
             }
 
             .context-switch nav a[disabled] {
-                background-color: ${colors.inputDisabled}
+                background-color: ${theme.inputDisabled}
             }
         `);
     }
@@ -767,12 +719,12 @@
             }
 
             label, body, html, header, nav, .navbar, .sidebar, .footer, .panel, .card, .content, .main, span {
-                color: ${colors.text};
+                color: ${theme.text};
             }
 
             body, html, section.main {
-                background-color: ${colors.background} !important;
-                background-image: url('${colors.backgroundImage}') !important;
+                background-color: ${theme.background} !important;
+                background-image: url('${theme.backgroundImage}') !important;
                 background-size: cover !important;
                 background-attachment: fixed !important;
                 background-position: center !important;
@@ -781,46 +733,51 @@
             }
 
             .sidebar, .footer, .panel, .card, .content, .main {
-                background-color: ${colors.surface} !important;
-                border-color: ${colors.border} !important;
+                background-color: transparent !important;
+                border-color: ${theme.border} !important;
                 border: 0px;
             }
 
             h1, h2, h3, h4, h5, h6 {
-                color: ${colors.heading} !important;
+                color: ${theme.heading} !important;
                 font-weight: 600;
             }
 
             a, .link, .btn-link {
-                color: ${colors.accent};
+                color: ${theme.accent};
             }
 
             a:hover {
-                color: ${colors.text};
+                color: ${theme.text};
             }
 
-            table, td{
-                background-color: ${colors.tableBg} !important;
-                color: ${colors.text} !important;
-                border: 1px solid ${colors.border} !important;
+            table, td {
+                background-color: ${theme.tableBg} !important;
+                color: ${theme.text} !important;
+                border: 1px solid ${theme.border} !important;
+                backdrop-filter: blur(${theme.blur_amount}px);
             }
 
             th {
-                background-color: ${colors.tableHeader} !important;
-                color: ${colors.heading} !important;
-                border-color: ${colors.border} !important;
+                background-color: ${theme.tableHeader} !important;
+                color: ${theme.heading} !important;
+                border-color: ${theme.border} !important;
                 font-weight: 600;
             }
 
+            table thead {
+                background-color: transparent;
+            }
+
             input, select, textarea, input::placeholder {
-                background-color: ${colors.inputBg} !important;
-                color: ${colors.heading} !important;
+                background-color: ${theme.inputBg} !important;
+                color: ${theme.heading} !important;
                 border: 0px;
             }
 
             ::selection {
-                background: ${colors.selectionBg};
-                color: ${colors.selectionText};
+                background: ${theme.selectionBg};
+                color: ${theme.selectionText};
             }
 
             header, nav, .navbar, .hybrid-bar, #container, ul#top-menu, a.logo, a#left-off-canvas-toggle, #footer, .tab-bar, .tab_bar {
@@ -830,15 +787,15 @@
             }
 
             button, .button, input[type="button"], input[type="submit"] {
-                background-color: ${colors.surface} !important;
-                color: ${colors.text} !important;
+                background-color: ${theme.surface} !important;
+                color: ${theme.text} !important;
                 cursor: pointer;
             }
 
             button:hover, .button:hover, input[type="button"]:hover, input[type="submit"]:hover {
-                background-color: ${colors.tableHeader} !important;
-                color: ${colors.heading} !important;
-                border-color: ${colors.accent} !important;
+                background-color: ${theme.tableHeader} !important;
+                color: ${theme.heading} !important;
+                border-color: ${theme.accent} !important;
             }
 
             button:focus, .button:focus, input[type="button"]:focus, input[type="submit"]:focus {
@@ -846,40 +803,40 @@
             }
 
             button:active, .button:active, input[type="button"]:active, input[type="submit"]:active {
-                background-color: ${colors.background} !important;
-                color: ${colors.accent} !important;
-                border-color: ${colors.accent} !important;
+                background-color: ${theme.background} !important;
+                color: ${theme.accent} !important;
+                border-color: ${theme.accent} !important;
             }
 
             button:disabled, .button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled {
-                background-color: ${colors.border} !important;
+                background-color: ${theme.border} !important;
                 color: #666 !important;
                 cursor: not-allowed;
                 opacity: 0.6;
             }
 
             time, p.meta {
-                color: ${colors.secondaryText};
+                color: ${theme.secondaryText};
             }
 
             dd a {
-                background-color: ${colors.surface} !important;
-                color: ${colors.accent};
+                background-color: ${theme.surface} !important;
+                color: ${theme.accent};
                 border: 0px;
                 text-decoration: none !important;
             }
 
             dd a:hover {
-                background-color: ${colors.tableHeader} !important;
-                color: ${colors.text} !important;
+                background-color: ${theme.tableHeader} !important;
+                color: ${theme.text} !important;
             }
 
             :root {
-                --content-ui-hover: ${colors.background_light};
-                --content-ui-foreground: ${colors.text};
-                --content-ui-background: ${colors.background_light};
-                --color-text-primary: ${colors.text};
-                --accent-foreground: ${colors.accent}
+                --content-ui-hover: ${theme.background_light};
+                --content-ui-foreground: ${theme.text};
+                --content-ui-background: ${theme.background_light};
+                --color-text-primary: ${theme.text};
+                --accent-foreground: ${theme.accent}
             }
         `);
     }
@@ -887,14 +844,14 @@
     function styleNavbar() {
         addCSS(`
             .hybrid-bar .top-menu li a:before, span[data-unread-count], a#notification-toggle::before, .hybrid-bar .top-menu li span{
-                color: ${colors.secondaryText};
+                color: ${theme.secondaryText};
             }
 
             .hybrid-bar .top-menu li > a:hover,
             .hybrid-bar .top-menu li > a:focus,
             .hybrid-bar .top-menu li > a:focus-visible {
                 background-color: transparent !important;
-                color: ${colors.heading} !important;
+                color: ${theme.heading} !important;
                 text-decoration: none;
             }
 
@@ -902,12 +859,12 @@
             .hybrid-bar .top-menu li > a:hover span,
             .hybrid-bar .top-menu li > a:focus::before,
             .hybrid-bar .top-menu li > a:focus span {
-                color: ${colors.heading} !important;
+                color: ${theme.heading} !important;
             }
 
             .hybrid-bar .top-menu li > a.navthis {
                 background: transparent !important;
-                color: ${colors.heading} !important;
+                color: ${theme.heading} !important;
             }
 
             .c-search-input input[type=text].c-search-input__field, div.c-header-search__results {
@@ -915,7 +872,7 @@
             }
 
             .off-canvas-list.second-nav, .profile-drop {
-                background-color: ${colors.surface} !important;
+                background-color: ${theme.surface} !important;
             }
 
             .left-off-canvas-menu ul.off-canvas-list li a:hover {
@@ -923,32 +880,52 @@
             }
 
             .left-off-canvas-menu {
-                background: ${colors.surface}
+                background: ${theme.surface}
             }
             ul.off-canvas-list li a:not([data-pwa-action=retryNotifPrompt]) {
-                color: ${colors.accent}
+                color: ${theme.accent}
             }
             .left-off-canvas-menu ul.off-canvas-list li a:hover {
-                color: ${colors.heading};
-                background-color: ${colors.background_light}
+                color: ${theme.heading};
+                background-color: ${theme.background_light}
             }
         `);
     }
 
     function styleTimetablePage() {
         styleTimetableSelector();
-        styleTimeTableColors();
-        window.addEventListener("load", styleTimeTableColorsOnLoad);
+        timeTableTransparency();
         insertActiveShading();
         optimizeTimetableLayout();
     }
 
+    function timeTableTransparency() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (!(node instanceof HTMLElement)) return;
+
+                    const subjectDivs =
+                        node.querySelectorAll?.(".timetable-subject") || [];
+                    subjectDivs.forEach((div) => {
+                        const anchor = div.querySelector("a");
+                        if (!anchor) return;
+                        const [r, g, b] = div.style.backgroundColor
+                            .match(/\d+/g)
+                            .map(Number);
+                        const alpha = 0.1; // Apply new RGBA color
+                        div.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                    });
+                });
+            });
+        });
+
+        observer.observe(document, { childList: true, subtree: true });
+    }
+
     function optimizeTimetableLayout() {
+        // 1. CSS to compress the table, expand width, and fill cells
         addCSS(`
-            /* Expand the timetable container to fit screen */
-            .row {
-                max-width: 98% !important;
-            }
 
             /* Remove padding from table cells so the subject div touches edges */
             table.timetable td {
@@ -1019,9 +996,9 @@
                 flex: 1;
             }
 
-            .row{
-                flex: none;
-            }
+            // .row{
+            //     flex: none;
+            // }
 
             .row[data-timetable-wrapper], .row[data-timetable-wrapper] > div.small-12.columns, .row[data-timetable-wrapper] > div.small-12.columns > .scrollable, .row[data-timetable-wrapper] > div.small-12.columns > .scrollable > timetable {
                 flex: 1;
@@ -1030,6 +1007,7 @@
             }
         `);
 
+        // 2. JS to move the Header Title next to the Buttons
         const moveHeader = () => {
             const subNav = document.querySelector("dl.sub-nav");
             const originalTitle = document.querySelector(
@@ -1041,10 +1019,17 @@
                 originalTitle &&
                 !document.querySelector(".timetable-header-flex")
             ) {
+                // The subNav is usually in: div.row > div.small-12 > dl.sub-nav
                 const container = subNav.parentElement;
+
+                // Create a wrapper for flex styling
                 const flexWrapper = document.createElement("div");
                 flexWrapper.className = "timetable-header-flex";
+
+                // Insert wrapper into the column
                 container.insertBefore(flexWrapper, subNav);
+
+                // Move elements into wrapper: Title first, then buttons
                 flexWrapper.appendChild(originalTitle);
                 flexWrapper.appendChild(subNav);
             }
@@ -1054,12 +1039,16 @@
             const wrapper = document.querySelector(selector);
             if (!wrapper) return;
             const firstCol = wrapper.querySelector(".small-12.columns");
-            if (firstCol) firstCol.remove();
-        }
+            if (firstCol) {
+                firstCol.remove();
+            }
+        } // Run once on load removeFirstColumn();
 
         const observer = new MutationObserver(() => {});
         if (document.body instanceof Node) {
             observer.observe(document.body, { childList: true, subtree: true });
+        } else {
+            console.warn("document.body is not ready yet");
         }
 
         if (document.readyState === "loading") {
@@ -1072,20 +1061,21 @@
             moveHeader();
         }
 
-        (function () {
-            const style = document.createElement("style");
-            style.textContent = ` #content > .row > .small-12, .rubric-criterion-selector #content > .row > .criteria-group, #content > .row > .medium-12, #content > .row > .list-item > .small-12, .rubric-criterion-selector #content > .row > .list-item > .criteria-group, #content > .row > .list-item > .medium-12 { padding-left: 0 !important; } `;
-            document.head.appendChild(style);
-        })();
+        // // Even Padding
+        // (function () {
+        //     const style = document.createElement("style");
+        //     style.textContent = ` #content > .row > .small-12, .rubric-criterion-selector #content > .row > .criteria-group, #content > .row > .medium-12, #content > .row > .list-item > .small-12, .rubric-criterion-selector #content > .row > .list-item > .criteria-group, #content > .row > .list-item > .medium-12 { padding-left: 0 !important; } `;
+        //     document.head.appendChild(style);
+        // })();
     }
 
     function insertActiveShading() {
         addCSS(`
             th.timetable-day-active {
-                background-color: ${colors.background_lighter} !important;
+                background-color: ${theme.background_lighter} !important;
             }
             .timetable td .timetable-subject-active {
-                border: .125rem solid ${colors.background_lighter};
+                border: .125rem solid ${theme.background_lighter};
             }
             .timetable td .timetable-subject-active::before {
                 display: none;
@@ -1096,98 +1086,38 @@
     function styleTimetableSelector() {
         addCSS(`
             a[data-timetable-selector], .sub-nav dd a {
-                background-color: ${colors.surface} !important;
-                color: ${colors.accent};
+                background-color: ${theme.surface} !important;
+                color: ${theme.accent};
                 border: 0px;
                 text-decoration: none !important;
             }
 
             a.credit-button {
-                color: ${colors.heading} !important;
+                color: ${theme.heading} !important;
             }
 
             a[data-timetable-selector]:hover, a.credit-button:hover, .sub-nav dd a:hover {
-                background-color: ${colors.tableHeader} !important;
-                color: ${colors.text} !important;
+                background-color: ${theme.tableHeader} !important;
+                color: ${theme.text} !important;
             }
 
             .sub-nav li.active a, .sub-nav dd.active a {
-                background-color: ${colors.surface} !important;
-                color: ${colors.accent};
+                background-color: ${theme.surface} !important;
+                color: ${theme.accent};
                 border: 0px;
                 text-decoration: none !important;
             }
         `);
     }
 
-    function styleTimeTableColors() {
-        const subjectColorMap = {};
-        let colorIndex = 0;
-
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                mutation.addedNodes.forEach((node) => {
-                    if (!(node instanceof HTMLElement)) return;
-
-                    const subjectDivs =
-                        node.querySelectorAll?.(".timetable-subject") || [];
-                    subjectDivs.forEach((div) => {
-                        const anchor = div.querySelector("a");
-                        if (!anchor) return;
-
-                        const subjectText = anchor.textContent.trim();
-                        const match = subjectText.match(/9\s(.+?)\s\(/);
-                        const subjectName = match ? match[1] : subjectText;
-
-                        if (!subjectColorMap[subjectName]) {
-                            subjectColorMap[subjectName] =
-                                styledTimetableColors[
-                                    colorIndex % styledTimetableColors.length
-                                ];
-                            colorIndex++;
-                        }
-                        div.style.backgroundColor =
-                            subjectColorMap[subjectName];
-                    });
-                });
-            });
-        });
-
-        observer.observe(document, { childList: true, subtree: true });
-    }
-
-    function styleTimeTableColorsOnLoad() {
-        const subjectColorMap = {};
-        let colorIndex = 0;
-
-        const subjectDivs = document.querySelectorAll(".timetable-subject");
-        subjectDivs.forEach((div) => {
-            const anchor = div.querySelector("a");
-            if (!anchor) return;
-
-            const subjectText = anchor.textContent.trim();
-            const match = subjectText.match(/9\s(.+?)\s\(/);
-            const subjectName = match ? match[1] : subjectText;
-
-            if (!subjectColorMap[subjectName]) {
-                subjectColorMap[subjectName] =
-                    styledTimetableColors[
-                        colorIndex % styledTimetableColors.length
-                    ];
-                colorIndex++;
-            }
-            div.style.backgroundColor = subjectColorMap[subjectName];
-        });
-    }
-
     function styleScrollBar() {
         addCSS(`
             :root {
-                --scroll-track: ${colors.scroll_track};
-                --scroll-thumb: ${colors.scroll_thumb};
-                --scroll-thumb-hover: ${colors.scroll_thumb_hover};
-                --scroll-thumb-active: ${colors.scroll_thumb_active};
-                --scroll-corner: ${colors.scroll_thumb_hover};
+                --scroll-track: ${theme.scroll_track};
+                --scroll-thumb: ${theme.scroll_thumb};
+                --scroll-thumb-hover: ${theme.scroll_thumb_hover};
+                --scroll-thumb-active: ${theme.scroll_thumb_active};
+                --scroll-corner: ${theme.scroll_thumb_hover};
             }
 
             * {
@@ -1231,7 +1161,7 @@
                     if (!(node instanceof HTMLElement)) return;
 
                     for (let i = 1; i <= 10; i++) {
-                        const color = gradeColors[10 - i];
+                        const color = gradeTheme[10 - i];
                         if (
                             node.classList &&
                             node.classList.contains(`gradient-${i}-bg`)
@@ -1276,21 +1206,21 @@
 
         addCSS(`
             blockquote {
-                background-color: ${colors.background_light};
-                border-left: 6px solid ${colors.accent} !important;
-                color: ${colors.heading};
+                background-color: ${theme.background_light};
+                border-left: 6px solid ${theme.accent} !important;
+                color: ${theme.heading};
                 font-weight: 400;
             }
             blockquote:before {
-                color: ${colors.accent}
+                color: ${theme.accent}
             }
 
             .activity-list.group {
-                border-bottom: 1rem solid ${colors.background}
+                border-bottom: 1rem solid ${theme.background}
             }
 
             div.flex-grade div.small-12 a p {
-                color: ${colors.text} !important;
+                color: ${theme.text} !important;
                 font-weight: 500;
             }
         `);
@@ -1299,14 +1229,15 @@
     function stylePortfolioSelector() {
         addCSS(`
             .sub-nav li a, .sub-nav dd a {
-                background-color: ${colors.surface} !important;
-                color: ${colors.accent};
+                background-color: ${theme.surface} !important;
+                color: ${theme.accent};
                 border: 0px;
                 text-decoration: none !important;
+                backdrop-filter: blur(${theme.blur_amount}px);
             }
             a[data-timetable-selector]:hover, a.credit-button:hover, .sub-nav dd a:hover {
-                background-color: ${colors.tableHeader} !important;
-                color: ${colors.text} !important;
+                background-color: ${theme.tableHeader} !important;
+                color: ${theme.text} !important;
             }
         `);
     }
