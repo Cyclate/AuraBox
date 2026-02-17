@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AuraBox
 // @namespace    http://tampermonkey.net/
-// @version      vAlpha.2.8
+// @version      vAlpha.2.8.1
 // @description  Theming Agent for SchoolBox
 // @author       Cyclate
 // @match        https://link.stleonards.vic.edu.au/*
@@ -14,35 +14,34 @@
 (function () {
     "use strict";
 
-    const VERSION = "vAlpha.2.8";
+    const VERSION = "vAlpha.2.8.1";
 
     // --- CONFIGURATION & STATE ---
 
-    // Default theme - will be overridden by saved theme
+    // Default transparency
+    const defaultTransparency = "5f";
+
+    // Initialize Default Theme
     let theme = {
-        transparency: "5f",
-    };
-
-    theme = {
-        // Background Image URL$
-        transparency: theme.transparency,
+        transparency: defaultTransparency,
         blur_amount: 10,
+        backgroundImage: "https://files.catbox.moe/hzkn8s.png",
 
-        backgroundImage: "https://i.postimg.cc/WzccJ6cR/new-4.png",
-        background: "#0b0f14" + theme.transparency,
-        background_light: "#1a2029" + theme.transparency,
-        background_lighter: "#2a313d" + theme.transparency,
-        surface: "#12161c" + theme.transparency,
+        // Colors constructed using transparency
+        background: "#0b0f14" + defaultTransparency,
+        background_light: "#1a2029" + defaultTransparency,
+        background_lighter: "#2a313d" + defaultTransparency,
+        surface: "#12161c" + defaultTransparency,
         border: "#0b0f14",
         text: "#d0d6e0",
         secondaryText: "#a0a6b0",
         heading: "#f0f4f8",
         accent: "#82b3e8",
-        tableBg: "#12171d" + theme.transparency,
-        tableHeader: "#1a2029" + theme.transparency,
+        tableBg: "#12171d" + defaultTransparency,
+        tableHeader: "#1a2029" + defaultTransparency,
         inputBg: "#1c222b",
         inputDisabled: "#12171d",
-        selectionBg: "#3a7fc4" + theme.transparency,
+        selectionBg: "#3a7fc4" + defaultTransparency,
         selectionText: "#e6ecf2",
         scroll_track: "#1f242c",
         scroll_thumb: "#3b404c",
@@ -284,7 +283,7 @@
                 }
 
                 const themeExport = {
-                    theme: newTheme,
+                    theme: newTheme, // Fixed: was 'themes'
                     gradeTheme: newGradeTheme,
                     version: VERSION,
                     source: "Auto-generated from background",
@@ -321,31 +320,31 @@
     }
 
     function loadSavedTheme() {
-        const savedTheme = GM_getValue("AuraBoxTheme", null);
-        if (savedTheme) {
-            theme = { ...theme, ...savedTheme.theme };
-            gradeTheme = savedTheme.gradeTheme || gradeTheme;
+        const savedData = GM_getValue("AuraBoxTheme", null);
+        if (savedData && savedData.theme) {
+            theme = { ...theme, ...savedData.theme };
+            gradeTheme = savedData.gradeTheme || gradeTheme;
         }
     }
 
     function saveTheme() {
-        const theme = {
-            theme: theme,
+        const saveData = {
+            theme: theme, // Fixed: was 'themes', shadowing global
             gradeTheme: gradeTheme,
             timestamp: new Date().toISOString(),
         };
-        GM_setValue("AuraBoxTheme", theme);
+        GM_setValue("AuraBoxTheme", saveData);
     }
 
     function exportTheme() {
-        const theme = {
-            theme: theme,
+        const exportData = {
+            theme: theme, // Fixed: was 'themes', shadowing global
             gradeTheme: gradeTheme,
             version: VERSION,
             exportDate: new Date().toISOString(),
         };
 
-        const dataStr = JSON.stringify(theme, null, 2);
+        const dataStr = JSON.stringify(exportData, null, 2);
         const dataUri =
             "data:application/json;charset=utf-8," +
             encodeURIComponent(dataStr);
@@ -369,10 +368,26 @@
             const reader = new FileReader();
             reader.onload = function (e) {
                 try {
-                    const theme = JSON.parse(e.target.result);
-                    if (theme.theme && typeof theme.theme === "object") {
-                        theme = { ...theme, ...theme.theme };
-                        gradeTheme = theme.gradeTheme || gradeTheme;
+                    const importedData = JSON.parse(e.target.result);
+
+                    // Support structure where 'theme' key exists
+                    if (
+                        importedData.theme &&
+                        typeof importedData.theme === "object"
+                    ) {
+                        theme = { ...theme, ...importedData.theme };
+                        gradeTheme = importedData.gradeTheme || gradeTheme;
+
+                        saveTheme();
+                        applyTheme();
+                        showNotification("Theme imported successfully!");
+                    }
+                    // Fallback for direct color objects (legacy support if needed)
+                    else if (importedData.colors || importedData.background) {
+                        const colors = importedData.colors || importedData;
+                        theme = { ...theme, ...colors };
+                        if (importedData.gradeTheme)
+                            gradeTheme = importedData.gradeTheme;
 
                         saveTheme();
                         applyTheme();
@@ -1060,13 +1075,6 @@
         } else {
             moveHeader();
         }
-
-        // // Even Padding
-        // (function () {
-        //     const style = document.createElement("style");
-        //     style.textContent = ` #content > .row > .small-12, .rubric-criterion-selector #content > .row > .criteria-group, #content > .row > .medium-12, #content > .row > .list-item > .small-12, .rubric-criterion-selector #content > .row > .list-item > .criteria-group, #content > .row > .list-item > .medium-12 { padding-left: 0 !important; } `;
-        //     document.head.appendChild(style);
-        // })();
     }
 
     function insertActiveShading() {
@@ -1161,7 +1169,16 @@
                     if (!(node instanceof HTMLElement)) return;
 
                     for (let i = 1; i <= 10; i++) {
-                        const color = gradeTheme[10 - i];
+                        // Fix for out of bounds indexing.
+                        // gradeTheme is length 8.
+                        // If i=1, 10-1 = 9 (undefined).
+                        // If i=10, 10-10 = 0 (defined).
+                        const index = Math.max(
+                            0,
+                            Math.min(gradeTheme.length - 1, 10 - i),
+                        );
+                        const color = gradeTheme[index];
+
                         if (
                             node.classList &&
                             node.classList.contains(`gradient-${i}-bg`)
