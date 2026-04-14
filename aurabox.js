@@ -19,12 +19,12 @@
     // --- CONFIGURATION & STATE ---
 
     // Default transparency
-    const defaultTransparency = "2f";
+    const defaultTransparency = "5f";
 
     // Initialize Default Theme
     let theme = {
         transparency: defaultTransparency,
-        blur_amount: 5,
+        blur_amount: 10,
         backgroundImage: "https://files.catbox.moe/hzkn8s.png",
 
         // Colors constructed using transparency
@@ -52,14 +52,14 @@
     };
 
     let gradeTheme = [
-        "#53e7b6",
-        "#3ccece",
-        "#4aaecc",
-        "#2c6d92",
-        "#254868",
-        "#d8c629",
-        "#ee9127",
-        "#ff0000",
+        "#82b3e8",
+        "#5c91c0",
+        "#3a6d99",
+        "#325f87",
+        "#2a5175",
+        "#234463",
+        "#1c3651",
+        "#151f2f",
     ];
 
     // Global Style Element
