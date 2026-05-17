@@ -37,6 +37,7 @@
         secondaryText: "#a0a6b0",
         heading: "#f0f4f8",
         accent: "#82b3e8",
+        accent_darker: "#203d5c",
         tableBg: "#12171d" + defaultTransparency,
         tableHeader: "#1a2029" + defaultTransparency,
         inputBg: "#1c222b",
@@ -451,6 +452,14 @@
         styleDueWorkPage();
         styleNewsPage();
         styleHomePage();
+        styleLeftSideBar();
+        styleProfileMenu();
+        styleCalendar();
+        styleNotificationsSettings();
+        styleLearningPage();
+        styleFeedPage();
+        styleSearch();
+
 
         // Apply to DOM once
         styleElement.textContent = cssBuffer.join("\n");
@@ -462,6 +471,134 @@
     }
 
     // --- COMPONENT STYLING FUNCTIONS ---
+
+    function styleSearch() {
+        addCSS(`
+            .c-card {
+                background-color:${theme.surface};
+                backdrop-filter: blur(calc(1.8 * ${theme.blur_amount}px)) grayscale(0.9) brightness(0.7);
+                color:${theme.text};
+            }
+            .c-card em {
+                color:${theme.text};
+            }
+            .c-island {
+                background-color: ${theme.surface};
+                backdrop-filter: blur(${theme.blur_amount}px);
+            }
+            .search-result {
+                background-color:transparent !important;
+            }
+            .search-result:hover {
+                background-color:${theme.surface} !important;
+            }
+            .selected-item {
+                background-color:transparent !important;
+            }
+        `)
+    }
+
+    function styleFeedPage() {
+        addCSS(`
+            .feed, .feed-column {
+                background-color: transparent;
+            }
+            .subheader time {
+                color: inherit !important;
+            }
+            .subheader {
+                background-color: transparent !important;
+                border: none !important;
+                color: ${theme.heading} !important;
+            }
+        `)
+    }
+
+    function styleLearningPage() {
+        // addCSS(`
+        //     .Schoolbox_Tile_Component_HomepageTileController .island section {
+        //         background-color: ${theme.background} !important;
+        //     }
+        // `)
+    }
+
+    function styleNotificationsSettings() {
+        addCSS(`
+            body:not(.sbx-body) input:not(.plain):checked+label.input-toggle {
+                background-color: ${theme.accent_darker} !important;
+                border: 1px solid ${theme.accent} !important;
+            }
+            .input-toggle:hover {
+                background-color: ${theme.accent_darker} !important;
+            }
+            .input-toggle {
+                transition: background 0.15s, border-color 0.15s !important;
+            }
+        `)
+    }
+
+    function styleCalendar() {
+
+        addCSS(`
+            body .reveal-modal {
+                background-color:${theme.surface};
+                backdrop-filter:blur(calc(1.8 * ${theme.blur_amount}px));
+            }
+            .fc-event-main {
+                backdrop-filter:brightness(0.2) saturate(2);
+            }
+            a.fc-event {
+                border: 1px solid ${theme.accent_darker} !important;
+                // background-color: transparent !important;
+            }
+            tr.fc-event {
+                border: none !important;
+                // background-color: transparent !important;
+            }
+            .fc-event-main div b {
+                color: ${theme.text} !important;
+            }
+            .fc-event-main div span {
+                color: ${theme.accent} !important;
+            }
+            .fc-day-today {
+                background-color: ${theme.selectionBg} !important;
+            }
+        `)
+    }
+
+    function styleLeftSideBar() {
+        addCSS(`
+            #left-menu {
+                background: ${theme.surface};
+                backdrop-filter: blur(calc(1.8 * ${theme.blur_amount}px)) grayscale(0.9) brightness(0.7);
+            }
+            #side-menu-mysubjects li a {
+                transition:color 0.15s;
+            }
+            
+        `);
+    }
+
+    function styleProfileMenu() {
+        addCSS(`
+            #account-content {
+                background: ${theme.surface};
+                backdrop-filter: blur(calc(1.8 * ${theme.blur_amount}px)) grayscale(0.9) brightness(0.7);
+            }
+            #account-content li {
+                color: ${theme.heading};
+            }
+            #account-content li a {
+                color: ${theme.heading};
+                border: 1px solid transparent;
+            }
+            #account-content li a:hover {
+                border: 1px solid ${theme.accent};
+                background: ${theme.accent_darker};
+            }
+        `);
+    }
 
     function styleHomePage() {
         addCSS(`
@@ -515,6 +652,22 @@
             }
             .fc-theme-standard th, .fc-theme-standard td, .fc-theme-standard thead, .fc-theme-standard tbody, .fc-theme-standard .fc-divider, .fc-theme-standard .fc-row, .fc-theme-standard .fc-content, .fc-theme-standard .fc-popover, .fc-theme-standard .fc-list-view, .fc-theme-standard .fc-list-heading td, .fc .fc-row .fc-content-skeleton td {
                 border: none;
+            }
+            .tabs dd a {
+                transition:background 0.15s, border-color 0.15s;
+                border-bottom: 2px solid transparent;
+                background-color:transparent !important;
+            }
+            .tabs dd a:hover {
+                background-color: ${theme.accent_darker} !important;
+                border-bottom: 2px solid ${theme.accent};
+            }
+            #news-component article p, #news-container article p {
+                color: ${theme.text};
+            }
+            #news-component article p span, #news-container article p span {
+                color: ${theme.text} !important;
+                background-color:transparent !important;
             }
         `);
     }
@@ -602,7 +755,8 @@
 
             .island section {
                 background: ${theme.surface};
-                backdrop-filter: blur(20px);
+                background-color: ${theme.surface} !important;
+                backdrop-filter: blur(5px);
             }
 
             #component-layout .column-right .island section {
@@ -769,7 +923,7 @@
             table, td {
                 background-color: ${theme.tableBg} !important;
                 color: ${theme.text} !important;
-                border: 1px solid ${theme.border} !important;
+                border: 0px solid ${theme.border} !important;
                 backdrop-filter: blur(${theme.blur_amount}px);
             }
 
@@ -852,6 +1006,12 @@
                 --content-ui-background: ${theme.background_light};
                 --color-text-primary: ${theme.text};
                 --accent-foreground: ${theme.accent}
+            }
+
+            .alert-box {
+                background-color: ${theme.accent_darker};
+                border: 1px solid ${theme.accent};
+                color: ${theme.text};
             }
         `);
     }
@@ -1020,6 +1180,19 @@
                 display: flex;
                 flex-direction: column;
             }
+            .timetable {
+                background-color:transparent !important;
+                backdrop-filter:none;
+                border-spacing:3px;
+            }
+            .timetable tbody th, .timetable thead th {
+                border-color:transparent !important;
+                backdrop-filter:blur(${theme.blur_amount}px);
+            }
+            .timetable tbody td, timetable thead td {
+                // border: 2px solid transparent !important;
+                backdrop-filter:blur(${theme.blur_amount}px);
+            }
         `);
 
         // 2. JS to move the Header Title next to the Buttons
@@ -1184,8 +1357,13 @@
                             node.classList.contains(`gradient-${i}-bg`)
                         ) {
                             node.style.setProperty(
-                                "background-color",
+                                "border-color",
                                 color,
+                                "important",
+                            );
+                            node.style.setProperty(
+                                "background-image",
+                                color+"96",
                                 "important",
                             );
                             node.style.setProperty(
@@ -1200,8 +1378,13 @@
                         );
                         descendants.forEach((el) => {
                             el.style.setProperty(
-                                "background-color",
+                                "border-color",
                                 color,
+                                "important",
+                            );
+                            el.style.setProperty(
+                                "background-color",
+                                color+"96",
                                 "important",
                             );
                             el.style.setProperty(
@@ -1225,11 +1408,15 @@
             blockquote {
                 background-color: ${theme.background_light};
                 border-left: 6px solid ${theme.accent} !important;
-                color: ${theme.heading};
+                color: ${theme.text};
                 font-weight: 400;
             }
             blockquote:before {
                 color: ${theme.accent}
+            }
+            
+            blockquote p {
+                color:inherit;
             }
 
             .activity-list.group {
@@ -1239,6 +1426,11 @@
             div.flex-grade div.small-12 a p {
                 color: ${theme.text} !important;
                 font-weight: 500;
+            }
+
+            .flex-grade .grade {
+                border: 1px solid;
+                background-color:transparent !important;
             }
         `);
     }
